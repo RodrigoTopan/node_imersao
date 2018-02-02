@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 const Sequelize = require('sequelize');
+//Bcrypt - para segurança :D
+//const bcrypt = require('bcrypt');
+//const senha = 'abc123';
+
 const Funcionario = require('./funcionario');
 const Usuario = require('./usuario');
 const Empresa = require('./empresa');
@@ -75,7 +79,7 @@ class DatabaseSQL {
 
 
         //Relacionamento 1 pra 1
-        this.UserModel.belongsTo(this.EmployeeModel, { foreignKey: 'fk_userId', targetKey: 'ID' });
+        this.EmployeeModel.belongsTo(this.UserModel, { foreignKey: 'fk_userId', targetKey: 'ID', unique: true, });
         //this.EmployeeModel.belongsTo(this.UserModel, { foreignKey: 'fk_userId', targetKey: 'ID' });
         //{foreignKey: 'fk_companyname', targetKey: 'name'}
         //Relacionamento Muitos pra Muitos
@@ -217,7 +221,28 @@ class DatabaseSQL {
     */
     //========================================================== Usuários===============================
 
+    //Criei essa função apenas para provar que o password retorna criptografado
+    async listarUsuarios() {
+        const result = await this.CompanyModel.findAll().map(item => {
+            //extraimos os objetos que precisamos
+            const { ID, USERNAME, PASSWORD } = item;
+            const usuario = {
+                id: ID,
+                username: USERNAME,
+                password: PASSWORD,
+            };
+
+            const usuarioMapeado = new Usuario(usuario);
+            return usuarioMapeado;
+        });
+        return result;
+    }
+
     async cadastrarUsuarios(user) {
+        /*bcrypt.hash(password, 10, function (err, hash) {
+            // Store hash in database
+            user.password = hash;
+        });*/
         const result = await this.UserModel.create
             ({
                 USERNAME: user.username,

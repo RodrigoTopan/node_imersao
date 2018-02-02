@@ -119,7 +119,7 @@ async function registrarRotas() {
                             idade: Joi.string().required(),
                             dataNascimento: Joi.date().required(),
                             UserID: Joi.string().required(),
-                            
+
                         },
                         headers: Joi.object({
                             authorization: Joi.string().required(),
@@ -223,6 +223,32 @@ async function registrarRotas() {
                 }
             },
             // =========================================== USERS ==========================================
+            {
+                //definir o caminho da url localhost:3000/employees
+                path: '/users',
+                //definir o method http
+                method: 'GET',
+                config: {
+                    auth: 'jwt',
+                    description: 'Retorna todos os usuários do sistema',
+                    notes: 'Retorna todos os usuários cadastrados',
+                    tags: ['api'],
+                    validate: {
+                        headers: Joi.object({
+                            authorization: Joi.string().required(),
+                        }).unknown(),
+                    },
+                    handler: async (req, reply) => {
+                        try {
+                            const result = await databaseSQL.listarUsuarios();
+                            return reply(result);
+                        } catch (e) {
+                            console.log('deu ruim', e);
+                            return reply('DEU RUIM');
+                        }
+                    }
+                }
+            },
             {
                 path: '/users',
                 method: 'POST',
