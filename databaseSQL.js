@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const Sequelize = require('sequelize');
 //Bcrypt - para segurança :D
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 //const senha = 'abc123';
 
 const Funcionario = require('./funcionario');
@@ -239,10 +239,10 @@ class DatabaseSQL {
     }
 
     async cadastrarUsuarios(user) {
-        /*bcrypt.hash(password, 10, function (err, hash) {
+        bcrypt.hash(password, 10, function (err, hash) {
             // Store hash in database
             user.password = hash;
-        });*/
+        });
         const result = await this.UserModel.create
             ({
                 USERNAME: user.username,
