@@ -1,0 +1,32 @@
+{
+  "name": "dia1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "npm i -g pm2",
+    "start": "nodemon api.js",
+    "prod": "NODE_ENV=production pm2-docker api.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "dependencies": {
+    "bluebird": "3.5.1",
+    "commander": "2.13.0",
+    "dotenv": "4.0.0",
+    "hapi": "15.2.0",
+    "hapi-swagger": "7.10.0",
+    "hapi-auth-jwt2": "7.4.1",
+    "joi": "13.1.0",
+    "jsonwebtoken": "8.1.0",
+    "pg": "6.4.2",
+    "vision": "4.1.1",
+    "inert": "4.2.1",
+    "pg-hstore": "2.3.2",
+    "sequelize": "4.31.2",
+    "tedious": "2.1.5"
+  },
+  "devDependencies": {},
+  "description": ""
+}
