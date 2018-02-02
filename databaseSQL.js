@@ -7,7 +7,7 @@ const Sequelize = require('sequelize');
 const Funcionario = require('./funcionario');
 const Usuario = require('./usuario');
 const Empresa = require('./empresa');
-const FuncionarioEmpresa = require('./funcionarioEmpresa');
+//const FuncionarioEmpresa = require('./funcionarioEmpresa');
 class DatabaseSQL {
     constructor() {
         this.ImersaoNudesJS = {};
