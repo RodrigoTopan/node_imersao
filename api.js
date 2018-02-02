@@ -15,10 +15,10 @@ const HapiSwagger = require('hapi-swagger');
 
 const databaseSQL = new Database();
 
-const USUARIO_VALIDO = {
+/*const USUARIO_VALIDO = {
     username: 'Rodrigo',
     password: '123',
-};
+};*/
 const SECRET_KEY = process.env.SECRET_KEY;
 const ID_TOKEN = process.env.ID_TOKEN;
 const HapiJwt = require('hapi-auth-jwt2');
@@ -50,18 +50,19 @@ async function registrarRotas() {
                             password: Joi.string().required(),
                         }
                     },
-                    handler: (req, reply) => {
+                    handler: async (req, reply) => {
                         try {
                             const loginSenha = req.payload;
-                            //Aqui seria o momento de valiar
-                            //database.login() caso fosse um usuario valido
-                            //ai sim, voce gera o token e deixa ele passar
-                            if (
-                                !(loginSenha.username === USUARIO_VALIDO.username &&
-                                    loginSenha.password === USUARIO_VALIDO.password)
-                            )
+                            //const login = 'Rodrigo';
+                            //const senha = '123';
+                            const userName = await databaseSQL.pesquisarUserName(loginSenha.username);
+                            const userPassword = await databaseSQL.pesquisarPassword(loginSenha.password);
 
+                            if (
+                                !(loginSenha.username === userName.USERNAME && loginSenha.password === userPassword.PASSWORD)
+                            )
                                 return reply('Usuario ou senha, inválidos');
+
 
                             const { username } = loginSenha;
 
@@ -76,7 +77,7 @@ async function registrarRotas() {
                 },
             },
             {
-                //definir o caminho da url localhost:3000/heroes
+                //definir o caminho da url localhost:3000/employees
                 path: '/employees',
                 //definir o method http
                 method: 'GET',
@@ -118,6 +119,7 @@ async function registrarRotas() {
                             idade: Joi.string().required(),
                             dataNascimento: Joi.date().required(),
                             UserID: Joi.string().required(),
+                            
                         },
                         headers: Joi.object({
                             authorization: Joi.string().required(),
@@ -165,6 +167,34 @@ async function registrarRotas() {
                     }
                 },
             },
+            {
+                path: '/employees/{id}',
+                method: 'DELETE',
+                config: {
+                    auth: 'jwt',
+                    description: 'Rota para deletar Funcionários por id',
+                    notes: 'Deleta um funcionário correspondente ao id informado',
+                    tags: ['api'],
+                    validate: {
+                        params: {
+                            id: Joi.string().required(),
+                        },
+                        headers: Joi.object({
+                            authorization: Joi.string().required(),
+                        }).unknown(),
+                    },
+                    handler: async (req, reply) => {
+                        try {
+                            const id = req.params.id;
+                            const result = await databaseSQL.removerFuncionario(id);
+                            return reply(result);
+                        } catch (e) {
+                            console.log('deu ruim', e);
+                            return reply('DEU RUIM');
+                        }
+                    }
+                },
+            },
             //------------------------------- EMPRESAS-----------------------------------------------
             {
                 //definir o caminho da url localhost:3000/heroes
@@ -192,6 +222,7 @@ async function registrarRotas() {
                     }
                 }
             },
+            // =========================================== USERS ==========================================
             {
                 path: '/users',
                 method: 'POST',

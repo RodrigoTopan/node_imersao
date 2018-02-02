@@ -44,7 +44,13 @@ class DatabaseSQL {
             NOME: Sequelize.STRING,
             IDADE: Sequelize.STRING,
             DATA_NASCIMENTO: Sequelize.DATE,
-            //USUARIO_ID: Sequelize.INTEGER,
+            USER_ID: Sequelize.INTEGER,
+            /*USUARIO_ID: {
+                type: Sequelize.INTEGER,
+                references: 'Users',
+                referencesKey: 'ID',
+                allowNull: false
+            },*/
         });
         this.CompanyModel = this.ImersaoNudesJS.define('Companies', {
             ID: {
@@ -56,23 +62,31 @@ class DatabaseSQL {
             CNPJ: Sequelize.STRING,
         });
 
-        this.EmployeeCompanyModel = this.ImersaoNudesJS.define('EmployeesCompanies', {
-            ID: {
+        /*this.EmployeeCompanyModel = this.ImersaoNudesJS.define('EmployeesCompanies', {
+            /*ID: {
                 type: Sequelize.INTEGER,
                 primaryKey: true,
                 autoIncrement: true
             },
+
             FUNCIONARIO_ID: Sequelize.INTEGER,
             EMPRESA_ID: Sequelize.INTEGER,
-        });
+        });*/
 
 
         //Relacionamento 1 pra 1
-        this.EmployeeModel.belongsTo(this.UserModel);
+        this.UserModel.belongsTo(this.EmployeeModel, { foreignKey: 'fk_userId', targetKey: 'ID' });
+        //this.EmployeeModel.belongsTo(this.UserModel, { foreignKey: 'fk_userId', targetKey: 'ID' });
+        //{foreignKey: 'fk_companyname', targetKey: 'name'}
         //Relacionamento Muitos pra Muitos
-        this.EmployeeModel.hasMany(this.EmployeeCompanyModel);
-        this.CompanyModel.hasMany(this.EmployeeCompanyModel);
+        //this.EmployeeModel.hasMany(this.EmployeeCompanyModel);
+        //this.CompanyModel.hasMany(this.EmployeeCompanyModel);
+        //Belongs to many criará uma nova table chamada EmployeeCompanyModel
+        this.EmployeeModel.belongsToMany(this.CompanyModel, { through: 'EmployeeCompanyModel', foreignKey: 'fk_employeeId', targetKey: 'ID' });
+        this.CompanyModel.belongsToMany(this.EmployeeModel, { through: 'EmployeeCompanyModel', foreignKey: 'fk_companyId', targetKey: 'ID' });
 
+        //this.EmployeeModel.hasMany(CompanyModel, { through: 'EmployeeCompanyModel' });
+        //this.CompanyModel.hasMany(EmployeeModel, { through: 'EmployeeCompanyModel' });
 
 
         await this.UserModel.sync({ force: true })
@@ -96,11 +110,21 @@ class DatabaseSQL {
             CNPJ: '77722233344'
         });
 
-    }
+        await this.UserModel.create({
+            USERNAME: 'Rodrigo',
+            PASSWORD: '123'
+        });
 
-    async remover(nome) {
-        const result = await this.HeroModel.destroy({ where: { NOME: nome } });
-        return result;
+        /* await this.EmployeeModel.create({
+             NOME: 'Rodrigo',
+             IDADE: '19',
+             DATA_NASCIMENTO: '1998-03-11',
+             USER_ID: '1',
+ 
+         });
+         */
+
+        //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlJvZHJpZ28iLCJpZFRva2VuIjoiQUFCQkNDIiwiaWF0IjoxNTE3NTc3ODI5fQ.i2RjyH_OwaXKnvGN9Y1NNujHt2gRs4RQtVYPovmLYIo
     }
 
     async atualizar(nomeAntigo, hero) {
@@ -123,13 +147,13 @@ class DatabaseSQL {
     async listarFuncionarios() {
         const result = await this.EmployeeModel.findAll().map(item => {
             //extraimos os objetos que precisamos
-            const { ID, NOME, IDADE, DATA_NASCIMENTO, USUARIO_ID } = item;
+            const { ID, NOME, IDADE, DATA_NASCIMENTO, USER_ID } = item;
             const funcionario = {
                 id: ID,
                 nome: NOME,
                 idade: IDADE,
                 data: DATA_NASCIMENTO,
-                //usuario: USUARIO_ID,
+                usuario_id: USER_ID,
             };
 
             const funcionarioMapeado = new Funcionario(funcionario);
@@ -144,19 +168,22 @@ class DatabaseSQL {
                 NOME: employee.nome,
                 IDADE: employee.idade,
                 DATA_NASCIMENTO: employee.dataNascimento,
-                //USUARIO_ID: employee.id,
+                USER_ID: employee.UserID,
+                fk_userId: employee.UserID
             });
         return result;
     }
 
     async pesquisarFuncionario(id) {
-        //Pesquisamos a classe pela descrição, para pesquisar e obter o id do banco
-        const result = await this.EmployeeModel.findOne({
-            where: { ID: id },
-        });
+        //Find by id baby
+        const result = await this.EmployeeModel.findById(id);
         return result.get({ plain: true });
     }
 
+    async removerFuncionario(id) {
+        const result = await this.EmployeeModel.destroy({ where: { ID: id } });
+        return result;
+    }
 
     //==================================================== Empresas ===================================================
 
@@ -199,18 +226,42 @@ class DatabaseSQL {
         return result;
     }
 
+    async pesquisarUserName(username) {
+        //Pesquisamos a classe pela descrição, para pesquisar e obter o id do banco
+        const result = await this.UserModel.findOne({
+            where: { USERNAME: username },
+        });
+        //return result.get({ plain: true });
+        return result;
+    }
+    async pesquisarPassword(password) {
+        //Pesquisamos a classe pela descrição, para pesquisar e obter o id do banco
+        const result = await this.UserModel.findOne({
+            where: { PASSWORD: password },
+        });
+        //return result.get({ plain: true });
+        return result;
+    }
+
+
+
     //=========================================================== Funcionário Empresa===================
 
-    async cadastrarFuncionarioEmpresa(employeecompany) {
+    /*async cadastrarFuncionarioEmpresa(employeecompany) {
         const result = await this.EmployeeCompanyModel.create
             ({
                 EMPLOYEE_ID: employeecompany.employee_id,
                 COMPANY_ID: employeecompany.company_id,
             });
         return result;
+    }*/
+
+    // getUsers, setUsers, addUser,addUsers to Project,
+    // and getProjects, setProjects, addProject, and addProjects to User.
+    //add a new project to a user
+    async cadastrarFuncionarioEmpresa(employee, company) {
+        const result = employee.addCompany(company);
     }
-
-
 
 }
 module.exports = DatabaseSQL;

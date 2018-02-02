@@ -3,7 +3,7 @@ class Funcionario {
         this.nome = nome;
         this.idade = idade;
         this.dataNascimento = data;
-        this.usuarioId = usuario_id;
+        this.UserID = usuario_id;
     }
 }
 //Deixamos a classe publica
