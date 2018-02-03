@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const Sequelize = require('sequelize');
+
 //Bcrypt - para segurança :D
 const bcrypt = require('bcrypt');
 //const senha = 'abc123';
@@ -82,7 +83,7 @@ class DatabaseSQL {
 
         //Relacionamento 1 pra 1
         this.EmployeeModel.belongsTo(this.UserModel, {
-            foreignKey: 'fk_userId', targetKey: 'ID',
+            foreignKey: 'fk_userId', targetKey: 'ID', unique: 'fk_userId'
         });
         //this.EmployeeModel.belongsTo(this.UserModel, { foreignKey: 'fk_userId', targetKey: 'ID' });
         //{foreignKey: 'fk_companyname', targetKey: 'name'}
@@ -122,7 +123,7 @@ class DatabaseSQL {
             CNPJ: '77722233344'
         });
 
-        await this.UserModel.create({
+        /*await this.UserModel.create({
             USERNAME: 'Rodrigo',
             PASSWORD: '123'
         });
@@ -132,7 +133,7 @@ class DatabaseSQL {
             IDADE: '19',
             DATA_NASCIMENTO: '1998-03-11',
             fk_userId: '1',
-        });
+        });*/
 
 
 
@@ -273,16 +274,22 @@ class DatabaseSQL {
         return result;
     }
 
-    async pesquisarPassword(password) {
+    async pesquisarPassword(senha) {
+        //mapeamento de senhas dos usuários
+        //const passmap = await this.listarUsuarios();
+        //console.log(passmap);
+        //console.log(passmap.Usuario.password);
         //const hash = bcrypt.hashSync(password, 10);
         const result = await this.UserModel.findOne({
             where: { PASSWORD: this.senha },
         });
-        const verificado = bcrypt.compareSync(password, result.PASSWORD);
+        const verificado = bcrypt.compareSync(senha, result.PASSWORD);
         //return result.get({ plain: true });
-        //console.log(verificado);
+        console.log(verificado);
         return verificado;
     }
+
+
 
 
 

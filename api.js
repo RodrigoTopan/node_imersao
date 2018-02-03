@@ -34,7 +34,7 @@ async function registrarRotas() {
         await databaseSQL.conectar();
         app.route([
             {
-                //definir o caminho da url localhost:3000/heroes
+                //definir o caminho da url localhost:3000/
                 path: '/login',
                 //definir o method http
                 method: 'POST',
@@ -55,10 +55,12 @@ async function registrarRotas() {
                             const loginSenha = req.payload;
                             //const login = 'Rodrigo';
                             //const senha = '123';
+                            const senhas = await databaseSQL.listarUsuarios();
+                            console.log(senhas.PASSWORD);
                             const userName = await databaseSQL.pesquisarUserName(loginSenha.username);
                             const userPassword = await databaseSQL.pesquisarPassword(loginSenha.password);
-                            console.log(userPassword);
-                            console.log(userPassword.PASSOWRD);
+                            //console.log(userPassword);
+                            //console.log(userPassword.PASSWORD);
                             if (
                                 !(loginSenha.username === userName.USERNAME && userPassword === true)
                             )
