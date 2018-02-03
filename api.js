@@ -118,7 +118,7 @@ async function registrarRotas() {
                                 .required(),
                             idade: Joi.string().required(),
                             dataNascimento: Joi.date().required(),
-                            UserID: Joi.string().required(),
+                            fk_userId: Joi.string().required(),
 
                         },
                         headers: Joi.object({
@@ -194,6 +194,44 @@ async function registrarRotas() {
                         }
                     }
                 },
+            },
+            {
+                path: '/employees/{id}',
+                method: 'PUT',
+                config: {
+                    auth: 'jwt',
+                    description: 'Rota para alterar funcionários por id',
+                    notes: 'Rota para alterar registro de funcionários',
+                    tags: ['api'],
+                    validate: {
+                        params: {
+                            id: Joi.string().required(),
+                        },
+                        payload: {
+                            nome: Joi.string()
+                                .max(20)
+                                .min(2)
+                                .required(),
+                            idade: Joi.string().required(),
+                            dataNascimento: Joi.date().required(),
+                            fk_userId: Joi.string().required()
+                        },
+                        headers: Joi.object({
+                            authorization: Joi.string().required(),
+                        }).unknown(),
+                    },
+                    handler: async (req, reply) => {
+                        try {
+                            const dados = req.payload;
+                            const id = req.params.id;
+                            const result = await databaseSQL.atualizarFuncionario(id, dados);
+                            return reply(result);
+                        } catch (e) {
+                            console.log('deu ruim', e);
+                            return reply('DEU RUIM');
+                        }
+                    }
+                }
             },
             //------------------------------- EMPRESAS-----------------------------------------------
             {
@@ -278,6 +316,34 @@ async function registrarRotas() {
                     }
                 }
             },
+            //======================================== Funcionario Empresa ==================================
+            {
+                path: '/employeescompanies',
+                method: 'POST',
+                config: {
+                    auth: 'jwt',
+                    description: 'Rota para cadastrar novos funcionários em empresas',
+                    notes: 'Realiza o cadastro completo de um novo funcionário a uma empresa',
+                    tags: ['api'],
+                    validate: {
+                        payload: {
+                            fk_employeeId: Joi.string().required(),
+                            fk_companyId: Joi.string().required(),
+                        },
+                    },
+                    handler: async (req, reply) => {
+                        try {
+                            const dados = req.payload;
+                            const result = await databaseSQL.cadastrarFuncionarioEmpresa(dados);
+                            return reply(result);
+                        } catch (e) {
+                            console.log('deu ruim', e);
+                            return reply('DEU RUIM');
+                        }
+                    }
+                }
+            },
+
         ]);
     } catch (e) {
         console.error('DEU RUIM', e);
