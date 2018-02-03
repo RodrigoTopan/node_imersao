@@ -57,9 +57,10 @@ async function registrarRotas() {
                             //const senha = '123';
                             const userName = await databaseSQL.pesquisarUserName(loginSenha.username);
                             const userPassword = await databaseSQL.pesquisarPassword(loginSenha.password);
-
+                            console.log(userPassword);
+                            console.log(userPassword.PASSOWRD);
                             if (
-                                !(loginSenha.username === userName.USERNAME && loginSenha.password === userPassword.PASSWORD)
+                                !(loginSenha.username === userName.USERNAME && userPassword === true)
                             )
                                 return reply('Usuario ou senha, inválidos');
 

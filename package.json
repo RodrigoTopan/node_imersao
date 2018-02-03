@@ -25,7 +25,8 @@
     "inert": "4.2.1",
     "pg-hstore": "2.3.2",
     "sequelize": "4.31.2",
-    "tedious": "2.1.5"
+    "tedious": "2.1.5",
+    "bcrypt": "1.0.3"
   },
   "devDependencies": {},
   "description": ""

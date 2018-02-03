@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const Sequelize = require('sequelize');
 //Bcrypt - para segurança :D
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 //const senha = 'abc123';
 
 const Funcionario = require('./funcionario');
@@ -15,6 +15,7 @@ class DatabaseSQL {
         this.CompanyModel = {};
         this.UserModel = {};
         this.EmployeesCompaniesModel = {};
+        this.senha = {};
     }
     async conectar() {
         const herokuPostgres = process.env.DATABASE_URL;
@@ -251,33 +252,36 @@ class DatabaseSQL {
     }
 
     async cadastrarUsuarios(user) {
-        /*bcrypt.hash(password, 10, function (err, hash) {
-            // Store hash in database
-            user.password = hash;
-        });*/
+        //mudar para modo assíncrono depois
+        const hash = bcrypt.hashSync(user.password, 10);
+        this.senha = hash;
+        console.log(this.senha);
         const result = await this.UserModel.create
             ({
                 USERNAME: user.username,
-                PASSWORD: user.password,
+                PASSWORD: hash,
             });
         return result;
     }
 
+
     async pesquisarUserName(username) {
-        //Pesquisamos a classe pela descrição, para pesquisar e obter o id do banco
         const result = await this.UserModel.findOne({
             where: { USERNAME: username },
         });
         //return result.get({ plain: true });
         return result;
     }
+
     async pesquisarPassword(password) {
-        //Pesquisamos a classe pela descrição, para pesquisar e obter o id do banco
+        //const hash = bcrypt.hashSync(password, 10);
         const result = await this.UserModel.findOne({
-            where: { PASSWORD: password },
+            where: { PASSWORD: this.senha },
         });
+        const verificado = bcrypt.compareSync(password, result.PASSWORD);
         //return result.get({ plain: true });
-        return result;
+        //console.log(verificado);
+        return verificado;
     }
 
 
